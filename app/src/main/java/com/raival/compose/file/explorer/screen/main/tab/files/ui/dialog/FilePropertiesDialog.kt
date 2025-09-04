@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.DataUsage
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
@@ -253,7 +252,7 @@ private fun SingleFileContent(details: PropertiesState.SingleContentProperties) 
                 progressFlow = details.checksumProgress
             )
             AsyncPropertyRow(
-                icon = Icons.Default.Info,
+                icon = Icons.Default.Fingerprint,
                 label = stringResource(R.string.sha1_checksum),
                 valueFlow = details.sha256,
                 progressFlow = details.sha256Progress
