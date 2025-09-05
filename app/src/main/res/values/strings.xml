@@ -453,4 +453,6 @@
     <string name="close_tab_on_back_nav">Back navigation to close tabs</string>
     <string name="remember_last_session">Remember last session</string>
     <string name="confirm_before_exit">Confirm before exit the app</string>
+    <string name="smb_storage">New SMB Storage</string>
+    <string name="smb_storage_desc">Connect to network drives</string>
 </resources>

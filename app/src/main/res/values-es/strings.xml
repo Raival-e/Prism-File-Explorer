@@ -453,4 +453,6 @@
     <string name="close_tab_on_back_nav">Navegación hacia atrás para cerrar pestañas</string>
     <string name="remember_last_session">Recordar última sesión</string>
     <string name="confirm_before_exit">Confirmar antes de salir de la aplicación</string>
+    <string name="smb_storage">Nuevo Almacenamiento SMB</string>
+    <string name="smb_storage_desc">Conectar a unidades de red</string>
 </resources>
