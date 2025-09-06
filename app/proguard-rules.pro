@@ -25,5 +25,10 @@
 -keep class org.joni.** { *; }
 -keep class android.content.** { *; }
 -keep class com.android.apksig.** { *; }
+# SMB SUPPORT
+-keep class com.hierynomus.** { *; }
+-keep class com.rapid7.** { *; }
+-keep class org.ietf.jgss.** { *; }
+-keep class sun.security.** { *; }
 
 -keepnames interface * { *; }
