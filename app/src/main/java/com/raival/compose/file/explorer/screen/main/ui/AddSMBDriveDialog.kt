@@ -67,7 +67,7 @@ fun AddSMBDriveDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Add SMB Storage",
+                    text = stringResource(R.string.smb_storage),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
