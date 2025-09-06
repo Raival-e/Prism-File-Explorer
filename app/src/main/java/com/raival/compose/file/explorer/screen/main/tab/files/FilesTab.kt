@@ -28,6 +28,7 @@ import com.raival.compose.file.explorer.screen.main.MainActivity
 import com.raival.compose.file.explorer.screen.main.tab.Tab
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.ContentHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.LocalFileHolder
+import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMBFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.VirtualFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.ZipFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.misc.FileListCategory
@@ -771,6 +772,11 @@ class FilesTab(
     }
 
     fun toggleImportPrefsDialog(file: LocalFileHolder?) {
+        targetFile = file
+        _dialogsState.update { it.copy(showImportPrefsDialog = file != null) }
+    }
+
+    fun toggleImportPrefsDialogSMB(file: SMBFileHolder?) {
         targetFile = file
         _dialogsState.update { it.copy(showImportPrefsDialog = file != null) }
     }

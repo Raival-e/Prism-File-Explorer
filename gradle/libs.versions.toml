@@ -3,6 +3,7 @@ accompanistSystemuicontroller = "0.36.0"
 agp = "8.6.1"
 apksig = "8.12.0"
 commonsNet = "3.12.0"
+dcerpc = "0.12.13"
 desugar_jdk_libs = "2.1.5"
 grid = "2.4.0"
 kotlin = "2.2.0"
@@ -14,6 +15,7 @@ androidxComposeBom = "2025.07.00"
 media3Exoplayer = "1.8.0"
 okio = "3.16.0"
 paletteKtx = "1.0.0"
+smbj = "0.12.1"
 soraEditor = "0.23.6"
 gson = "2.13.1"
 dataStore = "1.1.7"
@@ -49,6 +51,7 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coilCompose" }
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coilCompose" }
 coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coilCompose" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
+dcerpc = { module = "com.rapid7.client:dcerpc", version.ref = "dcerpc" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 grid = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "grid" }
 lazycolumnscrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumnscrollbar" }
@@ -60,6 +63,7 @@ androidx-compose-icons-extended = { group = "androidx.compose.material", name = 
 androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycle_runtime_compose_android" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity_compose" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+smbj = { module = "com.hierynomus:smbj", version.ref = "smbj" }
 sora-editor = { group = "io.github.Rosemoe.sora-editor", name = "editor", version.ref = "soraEditor" }
 sora-editor-language-java = { group = "io.github.Rosemoe.sora-editor", name = "language-java", version.ref = "soraEditor" }
 sora-editor-language-textmate = { group = "io.github.Rosemoe.sora-editor", name = "language-textmate", version.ref = "soraEditor" }

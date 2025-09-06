@@ -46,6 +46,21 @@ android {
     baselineProfile {
         dexLayoutOptimization = true
     }
+
+    packaging {
+        resources {
+            // Ignorar archivos duplicados META-INF que causan conflictos
+            excludes += listOf(
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/*.kotlin_module"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -106,4 +121,10 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.storage)
     implementation(libs.zip4j)
+
+    //SMB Support
+    implementation(libs.smbj)
+    implementation(libs.dcerpc) {
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
 }

@@ -12,6 +12,7 @@ data class MainActivityState(
     val subtitle: String = emptyString,
     val showAppInfoDialog: Boolean = false,
     val showJumpToPathDialog: Boolean = false,
+    val showAddSMBDriveDialog: Boolean = false,
     val showSaveEditorFilesDialog: Boolean = false,
     val showStartupTabsDialog: Boolean = false,
     val isSavingFiles: Boolean = false,

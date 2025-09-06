@@ -455,4 +455,14 @@
     <string name="confirm_before_exit">Confirm before exit the app</string>
     <string name="smb_storage">New SMB Storage</string>
     <string name="smb_storage_desc">Connect to network drives</string>
+    <string name="host">Host</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="see_less">See less</string>
+    <string name="see_more">See more</string>
+    <string name="domain">Domain</string>
+    <string name="optional">Optional</string>
+    <string name="cant_connect_smb">Could not connect. Please check your details.</string>
+    <string name="connect">Connect</string>
 </resources>

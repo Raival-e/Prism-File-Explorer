@@ -669,7 +669,7 @@ private fun SMBStorageSection(
             title = stringResource(R.string.smb_storage),
             imageVector = Icons.Rounded.Lan
         ) {
-            
+            mainActivityManager.toggleAddSMBDriveDialog(true)
         }
     }
 }

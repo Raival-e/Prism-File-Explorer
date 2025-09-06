@@ -21,6 +21,7 @@ import com.raival.compose.file.explorer.screen.main.tab.Tab
 import com.raival.compose.file.explorer.screen.main.tab.apps.AppsTab
 import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.LocalFileHolder
+import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMBFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.provider.StorageProvider
 import com.raival.compose.file.explorer.screen.main.tab.home.HomeTab
 import kotlinx.coroutines.CoroutineScope
@@ -223,10 +224,34 @@ class MainActivityManager {
         openFile(file, context)
     }
 
+
+    fun addSmbDrive(
+        host: String,
+        username: String,
+        password: String,
+        anonymous: Boolean,
+        domain: String,
+        context: Context
+    ): Boolean {
+        return try {
+            openSMBFile(SMBFileHolder(host, username, password, anonymous, domain, ""), context)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun openFile(file: LocalFileHolder, context: Context) {
         if (file.exists()) {
             addTabAndSelect(FilesTab(file, context))
         }
+    }
+
+    private fun openSMBFile(file: SMBFileHolder, context: Context) : Boolean {
+        return if (file.exists()) {
+            addTabAndSelect(FilesTab(file, context))
+            true
+        }else
+            false
     }
 
     fun resumeActiveTab() {
@@ -509,6 +534,14 @@ class MainActivityManager {
         _state.update {
             it.copy(
                 showJumpToPathDialog = show
+            )
+        }
+    }
+
+    fun toggleAddSMBDriveDialog(show: Boolean) {
+        _state.update {
+            it.copy(
+                showAddSMBDriveDialog = show
             )
         }
     }
