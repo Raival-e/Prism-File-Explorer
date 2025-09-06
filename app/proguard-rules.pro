@@ -28,7 +28,13 @@
 # SMB SUPPORT
 -keep class com.hierynomus.** { *; }
 -keep class com.rapid7.** { *; }
--keep class org.ietf.jgss.** { *; }
 -keep class sun.security.** { *; }
+-dontwarn sun.security.**
+-keep class java.rmi.** { *; }
+-dontwarn java.rmi.**
+-keep class javax.el.** { *; }
+-dontwarn javax.el.**
+-keep class org.ietf.jgss.** { *; }
+-dontwarn org.ietf.jgss.**
 
 -keepnames interface * { *; }
