@@ -150,6 +150,7 @@ class SMBFileHolder(
                             result.add(
                                 SMBFileHolder(
                                     host = host,
+                                    port = port,
                                     username = username,
                                     password = password,
                                     anonymous = anonymous,
@@ -176,6 +177,7 @@ class SMBFileHolder(
                         result.add(
                             SMBFileHolder(
                                 host = host,
+                                port = port,
                                 username = username,
                                 password = password,
                                 anonymous = anonymous,
@@ -237,6 +239,7 @@ class SMBFileHolder(
                 onCreated(
                     SMBFileHolder(
                         host = host,
+                        port = port,
                         username = username,
                         password = password,
                         anonymous = anonymous,
@@ -274,6 +277,7 @@ class SMBFileHolder(
                 onCreated(
                     SMBFileHolder(
                         host = host,
+                        port = port,
                         username = username,
                         password = password,
                         anonymous = anonymous,
@@ -313,6 +317,7 @@ class SMBFileHolder(
 
                         return SMBFileHolder(
                             host = host,
+                            port = port,
                             username = username,
                             password = password,
                             anonymous = anonymous,
