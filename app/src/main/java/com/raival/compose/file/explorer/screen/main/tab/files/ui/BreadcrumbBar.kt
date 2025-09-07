@@ -50,9 +50,8 @@ import kotlin.math.max
 @Composable
 fun BreadcrumbBar(tab: FilesTab) {
     val highlightedPathListItemColor = MaterialTheme.colorScheme.primary
-    val showCategoriesRow = tab.activeFolder is VirtualFileHolder && tab.categories.isNotEmpty()
 
-    if (showCategoriesRow) {
+    if (tab.showCategories) {
         CategoriesRow(tab)
     } else if (tab.activeFolder !is VirtualFileHolder) {
         Row(

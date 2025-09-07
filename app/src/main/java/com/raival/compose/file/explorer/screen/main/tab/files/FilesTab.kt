@@ -82,6 +82,7 @@ class FilesTab(
     var highlightedPathSegment by mutableStateOf(activeFolder)
     val currentPathSegmentsListState = LazyListState()
 
+    var showCategories by mutableStateOf(false)
     var categories = mutableStateListOf<FileListCategory>()
     var selectedCategory by mutableStateOf<FileListCategory?>(null)
 
@@ -319,7 +320,9 @@ class FilesTab(
         }
 
         // Check if the back gesture can be handled
-        handleBackGesture = runBlocking { activeFolder.hasParent() || selectedFiles.isNotEmpty() }
+        handleBackGesture = runBlocking {
+            selectedFiles.isNotEmpty() || (activeFolder.hasParent() && !shouldNavigateToParentTab())
+        }
 
         // Update the path list
         updatePathList()
@@ -355,10 +358,21 @@ class FilesTab(
             if (activeFolder is VirtualFileHolder) {
                 categories.clear()
                 categories.addAll((activeFolder as VirtualFileHolder).getCategories())
+                showCategories = categories.isNotEmpty()
+            } else {
+                showCategories = false
             }
 
             // Call any posted events
             postEvent()
+        }
+    }
+
+    private fun shouldNavigateToParentTab(): Boolean {
+        return parentTab isNot null
+                && activeFolder is ZipFileHolder
+                && with(activeFolder as ZipFileHolder) {
+            runBlocking { getParent()?.uniquePath == zipTree.source.getParent()?.uniquePath }
         }
     }
 
@@ -488,7 +502,8 @@ class FilesTab(
             val temp = arrayListOf<ContentHolder>().apply { addAll(activeFolderContent) }
 
             // Recheck the back gesture
-            handleBackGesture = activeFolder.hasParent() || selectedFiles.isNotEmpty()
+            handleBackGesture = selectedFiles.isNotEmpty()
+                    || (activeFolder.hasParent() && !shouldNavigateToParentTab())
 
             // Update the bottom bar options
             _bottomOptionsBarState.update {
@@ -515,7 +530,8 @@ class FilesTab(
     fun onSelectionChange() {
         scope.launch {
             // Recheck the back gesture
-            handleBackGesture = activeFolder.hasParent() || selectedFiles.isNotEmpty()
+            handleBackGesture =
+                selectedFiles.isNotEmpty() || (activeFolder.hasParent() && !shouldNavigateToParentTab())
 
             // Update the bottom bar options
             _bottomOptionsBarState.update {

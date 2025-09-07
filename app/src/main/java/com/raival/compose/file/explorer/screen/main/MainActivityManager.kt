@@ -193,13 +193,17 @@ class MainActivityManager {
         }
     }
 
-    fun replaceCurrentTabWith(tab: Tab) {
+    fun replaceCurrentTabWith(tab: Tab, keepCurrentTabAsParent: Boolean = false) {
         val currentActiveTab = getActiveTab()
 
         // Stop and remove the active tab BEFORE state update
         currentActiveTab?.apply {
             onTabStopped()
-            onTabRemoved()
+            if (!keepCurrentTabAsParent) onTabRemoved()
+        }
+
+        if (keepCurrentTabAsParent) {
+            tab.parentTab = currentActiveTab
         }
 
         // Update the state
@@ -275,6 +279,12 @@ class MainActivityManager {
 
         // Handle tabs's onBackPress
         if (getActiveTab()!!.onBackPressed()) {
+            return false
+        }
+
+        // Replace with parent tab if exists
+        if (getActiveTab()!!.parentTab != null) {
+            replaceCurrentTabWith(getActiveTab()!!.parentTab!!, false)
             return false
         }
 

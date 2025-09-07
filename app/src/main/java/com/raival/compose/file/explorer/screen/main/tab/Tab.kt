@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 
 abstract class Tab {
     var isCreated = false
+    var parentTab: Tab? = null
 
     abstract val id: Int
     abstract val header: String
