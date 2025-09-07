@@ -27,11 +27,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.R
+import com.raival.compose.file.explorer.common.ui.Space
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,24 +62,41 @@ fun AddSMBDriveDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+            shape = RoundedCornerShape(6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        )  {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(R.string.smb_storage),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+                Column {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.smb_storage),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Space(8.dp)
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
 
                 OutlinedTextField(
                     value = host,
                     onValueChange = { host = it },
                     label = { Text(stringResource(R.string.host)) },
                     singleLine = true,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -81,6 +105,13 @@ fun AddSMBDriveDialog(
                     onValueChange = { username = it },
                     label = { Text(stringResource(R.string.username)) },
                     singleLine = true,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !anonymous
                 )
@@ -91,6 +122,13 @@ fun AddSMBDriveDialog(
                     label = { Text(stringResource(R.string.password)) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !anonymous
                 )
@@ -120,6 +158,13 @@ fun AddSMBDriveDialog(
                         label = { Text(stringResource(R.string.domain)) },
                         placeholder = { Text(stringResource(R.string.optional)) },
                         singleLine = true,
+                        shape = RoundedCornerShape(6.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -127,12 +172,21 @@ fun AddSMBDriveDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = onDismiss,
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cancel),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                     Button(
+                        modifier = Modifier.weight(1f),
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
                                 val success = mainActivityManager.addSmbDrive(
@@ -152,9 +206,13 @@ fun AddSMBDriveDialog(
                                 }
                             }
                         },
-                        enabled = host.isNotBlank() && (anonymous || (username.isNotBlank() && password.isNotBlank()))
+                        enabled = host.isNotBlank() && (anonymous || (username.isNotBlank() && password.isNotBlank())),
+                        shape = RoundedCornerShape(6.dp)
                     ) {
-                        Text(stringResource(R.string.connect))
+                        Text(
+                            text = stringResource(R.string.connect),
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
             }
