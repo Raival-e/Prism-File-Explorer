@@ -18,6 +18,7 @@ import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
 import com.raival.compose.file.explorer.screen.main.tab.files.misc.ContentCount
 import com.raival.compose.file.explorer.screen.main.tab.files.misc.FileMimeType.anyFileType
+import com.raival.compose.file.explorer.screen.main.tab.files.smb.SMBConnectionManager
 import kotlinx.coroutines.runBlocking
 import com.rapid7.client.dcerpc.transport.SMBTransportFactories
 import com.rapid7.client.dcerpc.mssrvs.ServerService
@@ -98,11 +99,7 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = if (anonymous || username.isNullOrBlank()) {
-                    connection.authenticate(null)
-                } else {
-                    connection.authenticate(AuthenticationContext(username, password?.toCharArray(), domain))
-                }
+                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
 
                 if (shareName.isNotBlank()) {
                     val share = session.connectShare(shareName) as DiskShare
@@ -128,13 +125,7 @@ class SMBFileHolder(
 
         try {
             client.connect(host).use { connection: Connection ->
-                val session: Session = if (anonymous || username.isNullOrBlank()) {
-                    connection.authenticate(null) // Anonymous
-                } else {
-                    connection.authenticate(
-                        AuthenticationContext(username, password?.toCharArray(), domain)
-                    )
-                }
+                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
 
                 if (shareName.isNullOrBlank() || shareName == "/") {
                     val transport = SMBTransportFactories.SRVSVC.getTransport(session)
@@ -218,21 +209,11 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = if (anonymous || username.isNullOrBlank()) {
-                    connection.authenticate(null)
-                } else {
-                    connection.authenticate(
-                        AuthenticationContext(
-                            username, password?.toCharArray(), domain
-                        )
-                    )
-                }
+                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
 
-                val shareNameRoot = shareName.substringBefore("/")
-                val internalPath = shareName.substringAfter("/", "")
-                val share = session.connectShare(shareNameRoot) as DiskShare
+                val share = session.connectShare(shareName) as DiskShare
+                val newFilePath = if (pathInsideShare.isBlank()) name else "$pathInsideShare/$name"
 
-                val newFilePath = if (internalPath.isBlank()) name else "$internalPath/$name"
                 val file = share.openFile(
                     newFilePath,
                     setOf(AccessMask.GENERIC_WRITE),
@@ -241,7 +222,8 @@ class SMBFileHolder(
                     SMB2CreateDisposition.FILE_CREATE,
                     null
                 )
-                file.close() //
+                file.close()
+
                 onCreated(
                     SMBFileHolder(
                         host = host,
@@ -249,7 +231,9 @@ class SMBFileHolder(
                         password = password,
                         anonymous = anonymous,
                         domain = domain,
-                        shareName = "$shareName/$name"
+                        shareName = shareName,
+                        pathInsideShare = newFilePath,
+                        _isFolder = false
                     )
                 )
             }
@@ -258,28 +242,18 @@ class SMBFileHolder(
             onCreated(null)
         }
     }
-
 
     override suspend fun createSubFolder(name: String, onCreated: (ContentHolder?) -> Unit) {
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = if (anonymous || username.isNullOrBlank()) {
-                    connection.authenticate(null)
-                } else {
-                    connection.authenticate(
-                        AuthenticationContext(
-                            username, password?.toCharArray(), domain
-                        )
-                    )
-                }
+                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
 
-                val shareNameRoot = shareName.substringBefore("/")
-                val internalPath = shareName.substringAfter("/", "")
-                val share = session.connectShare(shareNameRoot) as DiskShare
+                val share = session.connectShare(shareName) as DiskShare
 
-                val newFolderPath = if (internalPath.isBlank()) name else "$internalPath/$name"
+                val newFolderPath = if (pathInsideShare.isBlank()) name else "$pathInsideShare/$name"
                 share.mkdir(newFolderPath)
+
                 onCreated(
                     SMBFileHolder(
                         host = host,
@@ -287,7 +261,9 @@ class SMBFileHolder(
                         password = password,
                         anonymous = anonymous,
                         domain = domain,
-                        shareName = "$shareName/$name"
+                        shareName = shareName, // se mantiene igual
+                        pathInsideShare = newFolderPath, // aquí va la ruta interna nueva
+                        _isFolder = true
                     )
                 )
             }
@@ -297,37 +273,29 @@ class SMBFileHolder(
         }
     }
 
-
     override suspend fun findFile(name: String): SMBFileHolder? {
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = if (anonymous || username.isNullOrBlank()) {
-                    connection.authenticate(null)
-                } else {
-                    connection.authenticate(
-                        AuthenticationContext(
-                            username, password?.toCharArray(), domain
-                        )
-                    )
-                }
+                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
 
-                val shareNameRoot = shareName.substringBefore("/")
-                val internalPath = shareName.substringAfter("/", "")
-                val share = session.connectShare(shareNameRoot) as DiskShare
-
-                for (entry in share.list(internalPath)) {
+                val share = session.connectShare(shareName) as DiskShare
+                for (entry in share.list(pathInsideShare)) {
                     if (entry.fileName == name) {
                         val isDir = EnumWithValue.EnumUtils.isSet(
                             entry.fileAttributes, FileAttributes.FILE_ATTRIBUTE_DIRECTORY
                         )
+                        val fullPath = if (pathInsideShare.isBlank()) name else "$pathInsideShare/$name"
+
                         return SMBFileHolder(
                             host = host,
                             username = username,
                             password = password,
                             anonymous = anonymous,
                             domain = domain,
-                            shareName = "$shareName/$name"
+                            shareName = shareName,
+                            pathInsideShare = fullPath,
+                            _isFolder = isDir
                         )
                     }
                 }
@@ -340,4 +308,7 @@ class SMBFileHolder(
 
     fun exists() = runBlocking { isValid() }
 }
+
+
+
 
