@@ -6,6 +6,7 @@ commonsNet = "3.12.0"
 dcerpc = "0.12.13"
 desugar_jdk_libs = "2.1.5"
 grid = "2.4.0"
+jcifsNg = "2.1.10"
 kotlin = "2.2.0"
 coreKtx = "1.16.0"
 appcompat = "1.7.1"
@@ -37,6 +38,7 @@ profileinstaller = "1.4.1"
 reorderable = "2.5.1"
 uiToolingPreviewAndroid = "1.9.0"
 zoomableImageCoil3 = "0.16.0"
+material3 = "1.3.2"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
@@ -54,6 +56,7 @@ commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 dcerpc = { module = "com.rapid7.client:dcerpc", version.ref = "dcerpc" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 grid = { module = "com.cheonjaeung.compose.grid:grid", version.ref = "grid" }
+jcifs-ng = { module = "eu.agno3.jcifs:jcifs-ng", version.ref = "jcifsNg" }
 lazycolumnscrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumnscrollbar" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
@@ -84,6 +87,7 @@ androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profi
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 zoomable-image-coil3 = { module = "me.saket.telephoto:zoomable-image-coil3", version.ref = "zoomableImageCoil3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

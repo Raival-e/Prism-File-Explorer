@@ -21,6 +21,7 @@ import com.raival.compose.file.explorer.screen.main.tab.Tab
 import com.raival.compose.file.explorer.screen.main.tab.apps.AppsTab
 import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.LocalFileHolder
+import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMB1FileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMBFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.provider.StorageProvider
 import com.raival.compose.file.explorer.screen.main.tab.home.HomeTab
@@ -241,6 +242,22 @@ class MainActivityManager {
         }
     }
 
+    fun addSmb1Drive(
+        host: String,
+        port: Int,
+        username: String,
+        password: String,
+        anonymous: Boolean,
+        domain: String,
+        context: Context
+    ): Boolean {
+        return try {
+            openSMB1File(SMB1FileHolder(host, port, username, password, anonymous, domain, ""), context)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun openFile(file: LocalFileHolder, context: Context) {
         if (file.exists()) {
             addTabAndSelect(FilesTab(file, context))
@@ -248,6 +265,14 @@ class MainActivityManager {
     }
 
     private fun openSMBFile(file: SMBFileHolder, context: Context) : Boolean {
+        return if (file.exists()) {
+            addTabAndSelect(FilesTab(file, context))
+            true
+        }else
+            false
+    }
+
+    private fun openSMB1File(file: SMB1FileHolder, context: Context) : Boolean {
         return if (file.exists()) {
             addTabAndSelect(FilesTab(file, context))
             true

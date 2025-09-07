@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -29,6 +28,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextFieldDefaults
@@ -45,6 +48,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSMBDriveDialog(
     show: Boolean,
@@ -61,6 +65,15 @@ fun AddSMBDriveDialog(
     var anonymous by remember { mutableStateOf(false) }
     var showMore by remember { mutableStateOf(false) }
     var domain by remember { mutableStateOf("") }
+
+    val smbAutoText = stringResource(R.string.smb_auto)
+    val smb1Text = stringResource(R.string.smb_1)
+    val smb2Text = stringResource(R.string.smb_2)
+
+    var smbVersion by remember { mutableStateOf(smbAutoText) }
+    val smbVersions = listOf(smbAutoText, smb1Text, smb2Text)
+
+    var expanded by remember { mutableStateOf(false) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -194,6 +207,44 @@ fun AddSMBDriveDialog(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded }
+                    ) {
+                        OutlinedTextField(
+                            value = smbVersion,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.version)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            shape = RoundedCornerShape(6.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            smbVersions.forEach { version ->
+                                DropdownMenuItem(
+                                    text = { Text(version) },
+                                    onClick = {
+                                        smbVersion = version
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -218,9 +269,21 @@ fun AddSMBDriveDialog(
                             CoroutineScope(Dispatchers.IO).launch {
                                 val port = portText.toIntOrNull() ?: 445
 
-                                val success = mainActivityManager.addSmbDrive(
-                                    host, port, username, password, anonymous, domain, context
-                                )
+                                val success = when (smbVersion) {
+                                    smb1Text -> mainActivityManager.addSmb1Drive(
+                                        host, port, username, password, anonymous, domain, context
+                                    )
+                                    smb2Text -> mainActivityManager.addSmbDrive(
+                                        host, port, username, password, anonymous, domain, context
+                                    )
+                                    else -> {
+                                        mainActivityManager.addSmbDrive(
+                                            host, port, username, password, anonymous, domain, context
+                                        ) || mainActivityManager.addSmb1Drive(
+                                            host, port, username, password, anonymous, domain, context
+                                        )
+                                    }
+                                }
 
                                 withContext(Dispatchers.Main) {
                                     if (success) {
@@ -248,4 +311,3 @@ fun AddSMBDriveDialog(
         }
     }
 }
-

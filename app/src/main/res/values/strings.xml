@@ -466,4 +466,7 @@
     <string name="cant_connect_smb">Could not connect. Please check your details.</string>
     <string name="connect">Connect</string>
     <string name="port">Port</string>
+    <string name="smb_auto">Automatic</string>
+    <string name="smb_1">JCIFS-NG</string>
+    <string name="smb_2">SMBJ (SMB 2.0+)</string>
 </resources>
