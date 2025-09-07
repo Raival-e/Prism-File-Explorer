@@ -1,16 +1,12 @@
 package com.raival.compose.file.explorer.screen.main.ui
 
-
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -49,7 +45,6 @@ fun AddSMBDriveDialog(
     if (!show) return
 
     val context = LocalContext.current
-
     val mainActivityManager = globalClass.mainActivityManager
     var host by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }

@@ -5,7 +5,7 @@ import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.auth.AuthenticationContext
 
 object SMBConnectionManager {
-    private val clients = mutableMapOf<String, Session>() // clave: host|username
+    private val clients = mutableMapOf<String, Session>()
 
     fun getSession(
         host: String,

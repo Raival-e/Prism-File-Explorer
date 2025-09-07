@@ -10,9 +10,7 @@ import com.hierynomus.mssmb2.SMB2CreateDisposition
 import com.hierynomus.mssmb2.SMB2ShareAccess
 import com.hierynomus.protocol.commons.EnumWithValue
 import com.hierynomus.smbj.SMBClient
-import com.hierynomus.smbj.auth.AuthenticationContext
 import com.hierynomus.smbj.connection.Connection
-import com.hierynomus.smbj.session.Session
 import com.hierynomus.smbj.share.DiskShare
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
@@ -261,8 +259,8 @@ class SMBFileHolder(
                         password = password,
                         anonymous = anonymous,
                         domain = domain,
-                        shareName = shareName, // se mantiene igual
-                        pathInsideShare = newFolderPath, // aquí va la ruta interna nueva
+                        shareName = shareName,
+                        pathInsideShare = newFolderPath,
                         _isFolder = true
                     )
                 )
