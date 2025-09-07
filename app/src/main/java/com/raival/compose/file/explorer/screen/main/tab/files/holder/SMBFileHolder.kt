@@ -190,15 +190,7 @@ class SMBFileHolder(
     }
 
     override fun open(context: Context, anonymous: Boolean, skipSupportedExtensions: Boolean, customMimeType: String?) {
-        if(isFolder)
-            globalClass.mainActivityManager.replaceCurrentTabWith(FilesTab(this))
-        else{
-            Toast.makeText(
-                context,
-                "Not yet implemented",
-                Toast.LENGTH_LONG
-            ).show()
-        }
+        
     }
 
     override suspend fun getContentCount(): ContentCount = ContentCount(fileCount, folderCount)
