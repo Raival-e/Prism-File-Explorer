@@ -2,7 +2,6 @@ package com.raival.compose.file.explorer.screen.main.tab.files.holder
 
 import android.content.Context
 import android.webkit.MimeTypeMap
-import android.widget.Toast
 import com.hierynomus.msdtyp.AccessMask
 import com.hierynomus.msfscc.FileAttributes
 import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation
@@ -13,7 +12,6 @@ import com.hierynomus.smbj.SMBClient
 import com.hierynomus.smbj.connection.Connection
 import com.hierynomus.smbj.share.DiskShare
 import com.raival.compose.file.explorer.App.Companion.globalClass
-import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
 import com.raival.compose.file.explorer.screen.main.tab.files.misc.ContentCount
 import com.raival.compose.file.explorer.screen.main.tab.files.misc.FileMimeType.anyFileType
 import com.raival.compose.file.explorer.screen.main.tab.files.smb.SMBConnectionManager
@@ -190,7 +188,7 @@ class SMBFileHolder(
     }
 
     override fun open(context: Context, anonymous: Boolean, skipSupportedExtensions: Boolean, customMimeType: String?) {
-        
+
     }
 
     override suspend fun getContentCount(): ContentCount = ContentCount(fileCount, folderCount)

@@ -775,9 +775,4 @@ class FilesTab(
         targetFile = file
         _dialogsState.update { it.copy(showImportPrefsDialog = file != null) }
     }
-
-    fun toggleImportPrefsDialogSMB(file: SMBFileHolder?) {
-        targetFile = file
-        _dialogsState.update { it.copy(showImportPrefsDialog = file != null) }
-    }
 }
