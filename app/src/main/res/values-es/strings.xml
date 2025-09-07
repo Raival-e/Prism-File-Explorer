@@ -465,4 +465,5 @@
     <string name="optional">Opcional</string>
     <string name="cant_connect_smb">No se pudo conectar. Por favor, verifica tus datos.</string>
     <string name="connect">Conectar</string>
+    <string name="port">Puerto</string>
 </resources>

@@ -465,4 +465,5 @@
     <string name="optional">Optional</string>
     <string name="cant_connect_smb">Could not connect. Please check your details.</string>
     <string name="connect">Connect</string>
+    <string name="port">Port</string>
 </resources>

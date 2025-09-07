@@ -227,6 +227,7 @@ class MainActivityManager {
 
     fun addSmbDrive(
         host: String,
+        port: Int,
         username: String,
         password: String,
         anonymous: Boolean,
@@ -234,7 +235,7 @@ class MainActivityManager {
         context: Context
     ): Boolean {
         return try {
-            openSMBFile(SMBFileHolder(host, username, password, anonymous, domain, ""), context)
+            openSMBFile(SMBFileHolder(host, port, username, password, anonymous, domain, ""), context)
         } catch (e: Exception) {
             false
         }

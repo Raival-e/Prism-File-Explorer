@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 
 class SMBFileHolder(
     val host: String,
+    val port: Int = 445,
     val username: String?,
     val password: String?,
     val anonymous: Boolean,
@@ -95,8 +96,15 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
-
+                val session = SMBConnectionManager.getSession(
+                    host = host,
+                    port = port,
+                    username = username,
+                    password = password,
+                    domain = domain,
+                    anonymous = anonymous
+                )
+                
                 if (shareName.isNotBlank()) {
                     val share = session.connectShare(shareName) as DiskShare
                     share.list("").isNotEmpty()
@@ -121,7 +129,14 @@ class SMBFileHolder(
 
         try {
             client.connect(host).use { connection: Connection ->
-                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
+                val session = SMBConnectionManager.getSession(
+                    host = host,
+                    port = port,
+                    username = username,
+                    password = password,
+                    domain = domain,
+                    anonymous = anonymous
+                )
 
                 if (shareName.isNullOrBlank() || shareName == "/") {
                     val transport = SMBTransportFactories.SRVSVC.getTransport(session)
@@ -184,7 +199,7 @@ class SMBFileHolder(
     override suspend fun getParent(): SMBFileHolder? {
         if (pathInsideShare.isBlank()) return null //
         val parentPath = pathInsideShare.substringBeforeLast("/", "")
-        return SMBFileHolder(host, username, password, anonymous, domain, shareName, parentPath)
+        return SMBFileHolder(host, port, username, password, anonymous, domain, shareName, parentPath)
     }
 
     override fun open(context: Context, anonymous: Boolean, skipSupportedExtensions: Boolean, customMimeType: String?) {
@@ -197,7 +212,14 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
+                val session = SMBConnectionManager.getSession(
+                    host = host,
+                    port = port,
+                    username = username,
+                    password = password,
+                    domain = domain,
+                    anonymous = anonymous
+                )
 
                 val share = session.connectShare(shareName) as DiskShare
                 val newFilePath = if (pathInsideShare.isBlank()) name else "$pathInsideShare/$name"
@@ -235,7 +257,14 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
+                val session = SMBConnectionManager.getSession(
+                    host = host,
+                    port = port,
+                    username = username,
+                    password = password,
+                    domain = domain,
+                    anonymous = anonymous
+                )
 
                 val share = session.connectShare(shareName) as DiskShare
 
@@ -265,7 +294,14 @@ class SMBFileHolder(
         val client = SMBClient()
         try {
             client.connect(host).use { connection ->
-                val session = SMBConnectionManager.getSession(host, username, password, domain, anonymous)
+                val session = SMBConnectionManager.getSession(
+                    host = host,
+                    port = port,
+                    username = username,
+                    password = password,
+                    domain = domain,
+                    anonymous = anonymous
+                )
 
                 val share = session.connectShare(shareName) as DiskShare
                 for (entry in share.list(pathInsideShare)) {

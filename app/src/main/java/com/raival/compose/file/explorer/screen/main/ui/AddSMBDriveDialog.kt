@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
@@ -54,6 +55,7 @@ fun AddSMBDriveDialog(
     val context = LocalContext.current
     val mainActivityManager = globalClass.mainActivityManager
     var host by remember { mutableStateOf("") }
+    var portText by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var anonymous by remember { mutableStateOf(false) }
@@ -99,6 +101,31 @@ fun AddSMBDriveDialog(
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                if (showMore) {
+                    OutlinedTextField(
+                        value = portText,
+                        onValueChange = { newValue ->
+                            if (newValue.all { it.isDigit() }) {
+                                portText = newValue
+                            }
+                        },
+                        label = { Text(stringResource(R.string.port)) },
+                        placeholder = { Text("445") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(6.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 OutlinedTextField(
                     value = username,
@@ -189,8 +216,10 @@ fun AddSMBDriveDialog(
                         modifier = Modifier.weight(1f),
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
+                                val port = portText.toIntOrNull() ?: 445
+
                                 val success = mainActivityManager.addSmbDrive(
-                                    host, username, password, anonymous, domain, context
+                                    host, port, username, password, anonymous, domain, context
                                 )
 
                                 withContext(Dispatchers.Main) {
