@@ -28,17 +28,27 @@ object SMB1ConnectionManager {
         anonymous: Boolean
     ): CIFSContext {
         val key = "$host|$port|$share|${username ?: "anon"}|$anonymous"
-        return contexts[key] ?: run {
-            val baseContext = SingletonContext.getInstance() as BaseContext
-            val context = if (anonymous || username.isNullOrBlank()) {
-                baseContext.withAnonymousCredentials()
-            } else {
-                val auth = NtlmPasswordAuthenticator(domain ?: "", username, password)
-                baseContext.withCredentials(auth)
-            }
-            contexts[key] = context
-            context
+
+        contexts[key]?.let { return it }
+
+        val baseContext = SingletonContext.getInstance() as BaseContext
+        val context = if (anonymous || username.isNullOrBlank()) {
+            baseContext.withAnonymousCredentials()
+        } else {
+            val auth = NtlmPasswordAuthenticator(domain ?: "", username, password)
+            baseContext.withCredentials(auth)
         }
+
+        val testUrl = "smb://$host:$port/$share/"
+        try {
+            val file = SmbFile(testUrl, context)
+            file.connect()
+        } catch (e: Exception) {
+            throw RuntimeException("Unable to connect to SMB1 share: $testUrl", e)
+        }
+
+        contexts[key] = context
+        return context
     }
 
     fun getFile(

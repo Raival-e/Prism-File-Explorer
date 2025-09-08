@@ -267,22 +267,14 @@ fun AddSMBDriveDialog(
                         modifier = Modifier.weight(1f),
                         onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
-                                val port = portText.toIntOrNull() ?: 445
+                                val smb1Port = portText.toIntOrNull() ?: 139
+                                val smb2Port = portText.toIntOrNull() ?: 445
 
                                 val success = when (smbVersion) {
-                                    smb1Text -> mainActivityManager.addSmb1Drive(
-                                        host, port, username, password, anonymous, domain, context
-                                    )
-                                    smb2Text -> mainActivityManager.addSmbDrive(
-                                        host, port, username, password, anonymous, domain, context
-                                    )
-                                    else -> {
-                                        mainActivityManager.addSmbDrive(
-                                            host, port, username, password, anonymous, domain, context
-                                        ) || mainActivityManager.addSmb1Drive(
-                                            host, port, username, password, anonymous, domain, context
-                                        )
-                                    }
+                                    smb1Text -> mainActivityManager.addSmb1Drive(host, smb1Port, username, password, anonymous, domain, context)
+                                    smb2Text -> mainActivityManager.addSmbDrive(host, smb2Port, username, password, anonymous, domain, context)
+                                    else -> mainActivityManager.addSmbDrive(host, smb2Port, username, password, anonymous, domain, context)
+                                            || mainActivityManager.addSmb1Drive(host, smb1Port, username, password, anonymous, domain, context)
                                 }
 
                                 withContext(Dispatchers.Main) {

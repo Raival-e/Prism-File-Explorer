@@ -9,25 +9,40 @@ object SMBConnectionManager {
 
     fun getSession(
         host: String,
-        port: Int = 445, // default smb port 445
+        port: Int = 445,
         username: String?,
         password: String?,
         domain: String?,
         anonymous: Boolean
     ): Session {
         val key = "$domain|$host|$port|${username ?: "anon"}"
-        return clients[key] ?: run {
-            val client = SMBClient()
-            val connection = client.connect(host, port)
-            val session = if (anonymous || username.isNullOrBlank()) {
+        clients[key]?.let { return it }
+
+        val client = SMBClient()
+        val connection = client.connect(host, port)
+        val session = try {
+            if (anonymous || username.isNullOrBlank()) {
                 connection.authenticate(null)
             } else {
                 connection.authenticate(
                     AuthenticationContext(username, password?.toCharArray(), domain)
                 )
             }
-            clients[key] = session
-            session
+        } catch (e: Exception) {
+            connection.close()
+            throw RuntimeException("Authentication failed for $username@$host:$port", e)
         }
+
+        try {
+            val share = session.connectShare("IPC$") // share estándar que siempre existe
+            share.close()
+        } catch (e: Exception) {
+            session.logoff()
+            throw RuntimeException("Session could not access share. Bad credentials?", e)
+        }
+
+        clients[key] = session
+        return session
     }
+
 }

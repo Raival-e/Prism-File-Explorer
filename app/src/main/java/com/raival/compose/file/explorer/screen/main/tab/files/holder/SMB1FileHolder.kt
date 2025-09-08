@@ -84,7 +84,10 @@ class SMB1FileHolder(
 
     override suspend fun isValid(): Boolean = withContext(Dispatchers.IO) {
         try {
-            getSmbFile().exists()
+            val file = getSmbFile()
+            file.connect() // fuerza la conexión al servidor
+            file.list()    // opcional: lista el directorio para asegurarte que existe
+            true
         } catch (e: Exception) {
             false
         }
