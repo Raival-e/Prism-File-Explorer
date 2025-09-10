@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Bookmarks
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Lan
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -284,6 +285,7 @@ fun HomeSectionType.getIcon(): ImageVector {
         HomeSectionType.RECYCLE_BIN -> Icons.Rounded.DeleteSweep
         HomeSectionType.JUMP_TO_PATH -> Icons.Rounded.ArrowOutward
         HomeSectionType.PINNED_FILES -> PrismIcons.Pin
+        HomeSectionType.SMB_STORAGE -> Icons.Rounded.Lan
     }
 }
 
@@ -296,5 +298,6 @@ fun HomeSectionType.getDescription(): String {
         HomeSectionType.RECYCLE_BIN -> globalClass.getString(R.string.deleted_files)
         HomeSectionType.JUMP_TO_PATH -> globalClass.getString(R.string.quick_path_navigation)
         HomeSectionType.PINNED_FILES -> globalClass.getString(R.string.pinned_files_desc)
+        HomeSectionType.SMB_STORAGE -> globalClass.getString(R.string.smb_storage_desc)
     }
 }

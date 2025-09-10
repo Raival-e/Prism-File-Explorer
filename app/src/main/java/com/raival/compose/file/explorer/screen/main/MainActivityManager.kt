@@ -1,6 +1,8 @@
 package com.raival.compose.file.explorer.screen.main
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.wifi.WifiManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.raival.compose.file.explorer.App.Companion.globalClass
@@ -21,22 +23,36 @@ import com.raival.compose.file.explorer.screen.main.tab.Tab
 import com.raival.compose.file.explorer.screen.main.tab.apps.AppsTab
 import com.raival.compose.file.explorer.screen.main.tab.files.FilesTab
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.LocalFileHolder
+import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMB1FileHolder
+import com.raival.compose.file.explorer.screen.main.tab.files.holder.SMBFileHolder
 import com.raival.compose.file.explorer.screen.main.tab.files.provider.StorageProvider
 import com.raival.compose.file.explorer.screen.main.tab.home.HomeTab
+import jcifs.netbios.NbtAddress
+import jcifs.netbios.UniAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import java.io.File
 import java.io.InputStreamReader
 import java.net.ConnectException
 import java.net.HttpURLConnection
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.NetworkInterface
+import java.net.Socket
 import java.net.URL
 import java.net.UnknownHostException
+import java.nio.ByteOrder
 import kotlin.math.max
 import kotlin.math.min
+
 
 class MainActivityManager {
     val managerScope = CoroutineScope(Dispatchers.IO)
@@ -227,10 +243,59 @@ class MainActivityManager {
         openFile(file, context)
     }
 
+
+    fun addSmbDrive(
+        host: String,
+        port: Int,
+        username: String,
+        password: String,
+        anonymous: Boolean,
+        domain: String,
+        context: Context
+    ): Boolean {
+        return try {
+            openSMBFile(SMBFileHolder(host, port, username, password, anonymous, domain, ""), context)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun addSmb1Drive(
+        host: String,
+        port: Int,
+        username: String,
+        password: String,
+        anonymous: Boolean,
+        domain: String,
+        context: Context
+    ): Boolean {
+        return try {
+            openSMB1File(SMB1FileHolder(host, port, username, password, anonymous, domain, ""), context)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun openFile(file: LocalFileHolder, context: Context) {
         if (file.exists()) {
             addTabAndSelect(FilesTab(file, context))
         }
+    }
+
+    private fun openSMBFile(file: SMBFileHolder, context: Context) : Boolean {
+        return if (file.exists()) {
+            addTabAndSelect(FilesTab(file, context))
+            true
+        }else
+            false
+    }
+
+    private fun openSMB1File(file: SMB1FileHolder, context: Context) : Boolean {
+        return if (file.exists()) {
+            addTabAndSelect(FilesTab(file, context))
+            true
+        }else
+            false
     }
 
     fun resumeActiveTab() {
@@ -519,6 +584,132 @@ class MainActivityManager {
         _state.update {
             it.copy(
                 showJumpToPathDialog = show
+            )
+        }
+    }
+
+    fun toggleLanDiscoveryDialog(show: Boolean) {
+        _state.update {
+            it.copy(
+                showLanDiscoveryDialog = show,
+                isLanScanningRunning = show,
+                lanDevices = if (show) emptyList() else it.lanDevices
+            )
+        }
+
+        if (show) {
+            startLanScan(globalClass)
+        }
+    }
+
+    @SuppressLint("ServiceCast")
+    fun getLocalIpAddress(context: Context): Pair<String, String>? {
+        try {
+            val interfaces = NetworkInterface.getNetworkInterfaces()
+            for (iface in interfaces) {
+                val addrs = iface.inetAddresses
+                for (addr in addrs) {
+                    if (!addr.isLoopbackAddress && addr is InetAddress && addr.address.size == 4) {
+                        val ip = addr.hostAddress
+                        val prefixLength = iface.interfaceAddresses.find { it.address.hostAddress == ip }?.networkPrefixLength
+                        if (prefixLength != null) {
+                            return Pair(ip, prefixLength.toString())
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    fun calculateIpRange(ip: String, prefixLength: Int): List<String> {
+        val ipParts = ip.split(".").map { it.toInt() }
+        val ipInt = (ipParts[0] shl 24) or (ipParts[1] shl 16) or (ipParts[2] shl 8) or ipParts[3]
+
+        val mask = (-1 shl (32 - prefixLength))
+        val network = ipInt and mask
+        val broadcast = network or mask.inv()
+
+        val ips = mutableListOf<String>()
+        for (current in network + 1 until broadcast) {
+            val octets = listOf(
+                (current shr 24) and 0xFF,
+                (current shr 16) and 0xFF,
+                (current shr 8) and 0xFF,
+                current and 0xFF
+            )
+            ips.add(octets.joinToString("."))
+        }
+
+        return ips
+    }
+
+
+
+    fun startLanScan(context: Context) {
+        managerScope.launch {
+            _state.update { it.copy(isLanScanningRunning = true, lanDevices = emptyList()) }
+
+            val local = getLocalIpAddress(context)
+            if (local == null) {
+                _state.update { it.copy(isLanScanningRunning = false) }
+                return@launch
+            }
+
+            val (localIp, prefixStr) = local
+            val prefixLength = prefixStr.toInt()
+            val ipsToScan = calculateIpRange(localIp, prefixLength)
+
+            val foundDevices = mutableSetOf<String>()
+            val ports = listOf(445, 139, 4450)
+            val semaphore = Semaphore(50)
+
+            val jobs = ipsToScan.map { ip ->
+                async(Dispatchers.IO) {
+                    semaphore.withPermit {
+                        for (port in ports) {
+                            try {
+                                Socket().use { socket ->
+                                    socket.connect(java.net.InetSocketAddress(ip, port), 200)
+                                    val inetAddress = InetAddress.getByName(ip)
+                                    val hostName = inetAddress.hostName
+
+                                    val display = "$hostName ($ip:$port)"
+                                    if (foundDevices.add(display)) {
+                                        _state.update {
+                                            it.copy(lanDevices = it.lanDevices + display)
+                                        }
+                                    }
+
+                                    break
+                                }
+                            } catch (_: Exception) {}
+                        }
+                    }
+                }
+            }
+
+            jobs.awaitAll()
+            _state.update { it.copy(isLanScanningRunning = false) }
+        }
+    }
+
+    fun toggleAddSMBDriveDialog(show: Boolean, defaultHost: String = "", defaultPort: String = "") {
+        _state.update {
+            it.copy(
+                showAddSMBDriveDialog = show,
+                smbDefaultHost = defaultHost,
+                smbDefaultPort = defaultPort
+            )
+        }
+    }
+
+    fun toggleStorageMenuDialog(show: Boolean) {
+        _state.update {
+            it.copy(
+                showStorageMenuDialog = show
             )
         }
     }

@@ -46,9 +46,25 @@ android {
     baselineProfile {
         dexLayoutOptimization = true
     }
+
+    packaging {
+        resources {
+            // Ignorar archivos duplicados META-INF que causan conflictos
+            excludes += listOf(
+                "META-INF/versions/9/OSGI-INF/MANIFEST.MF",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/*.kotlin_module"
+            )
+        }
+    }
 }
 
 dependencies {
+    implementation(libs.androidx.material3)
     "baselineProfile"(project(":baselineprofile"))
     implementation(libs.androidx.profileinstaller)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -106,4 +122,12 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.storage)
     implementation(libs.zip4j)
+
+    // SMB 2/3 support
+    implementation(libs.smbj)
+    implementation(libs.dcerpc) {
+        exclude(group = "com.google.code.findbugs", module = "jsr305")
+    }
+    // SMB 1 support (JCIFS-NG)
+    implementation(libs.jcifs.ng)
 }

@@ -12,6 +12,8 @@ object HomeSectionIds {
     const val PINNED_FILES = "pinned_files"
     const val RECYCLE_BIN = "recycle_bin"
     const val JUMP_TO_PATH = "jump_to_path"
+
+    const val SMB_STORAGE = "smb_storage"
 }
 
 fun getDefaultHomeLayout(minimalLayout: Boolean = false) = HomeLayout(
@@ -64,6 +66,13 @@ fun getDefaultHomeLayout(minimalLayout: Boolean = false) = HomeLayout(
             title = globalClass.getString(R.string.jump_to_path),
             isEnabled = !minimalLayout,
             order = 6
+        ),
+        HomeSectionConfig(
+            id = HomeSectionIds.SMB_STORAGE,
+            type = HomeSectionType.SMB_STORAGE,
+            title = globalClass.getString(R.string.smb_storage),
+            isEnabled = true,
+            order = 7
         )
     )
 )
@@ -74,19 +83,33 @@ data class HomeLayout(
 ) {
     // Adds missing sections for backward compatibility with older saved layouts
     fun getSections(): List<HomeSectionConfig> {
-        // Add Pinned Files if missing (for layouts saved before v1.3.2)
-        if (sections.find { it.id == HomeSectionIds.PINNED_FILES } == null) {
-            return sections.plus(
+        var updatedSections = sections
+        var nextOrder = updatedSections.maxOfOrNull { it.order }?.plus(1) ?: 0
+        // Add Pinned Files if missing
+        if (updatedSections.none { it.id == HomeSectionIds.PINNED_FILES }) {
+            updatedSections = updatedSections.plus(
                 HomeSectionConfig(
                     id = HomeSectionIds.PINNED_FILES,
                     type = HomeSectionType.PINNED_FILES,
                     title = globalClass.getString(R.string.pinned_files),
                     isEnabled = true,
-                    order = sections.maxOfOrNull { it.order }?.plus(1) ?: 0
+                    order = nextOrder++
                 )
             )
         }
-        return sections
+        // Add SMB Storage if missing
+        if (updatedSections.none { it.id == HomeSectionIds.SMB_STORAGE }) {
+            updatedSections = updatedSections.plus(
+                HomeSectionConfig(
+                    id = HomeSectionIds.SMB_STORAGE,
+                    type = HomeSectionType.SMB_STORAGE,
+                    title = globalClass.getString(R.string.smb_storage),
+                    isEnabled = true,
+                    order = nextOrder++
+                )
+            )
+        }
+        return updatedSections
     }
 }
 
@@ -107,5 +130,6 @@ enum class HomeSectionType {
     BOOKMARKS,
     RECYCLE_BIN,
     JUMP_TO_PATH,
-    PINNED_FILES
+    PINNED_FILES,
+    SMB_STORAGE,
 }

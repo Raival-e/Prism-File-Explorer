@@ -31,6 +31,7 @@ import androidx.compose.material.icons.rounded.ArrowOutward
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.Lan
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -189,6 +190,10 @@ fun ColumnScope.HomeTabContentView(tab: HomeTab) {
 
                 HomeSectionType.PINNED_FILES -> {
                     PinnedFilesSection(tab = tab, mainActivityManager = mainActivityManager)
+                }
+
+                HomeSectionType.SMB_STORAGE -> {
+                    SMBStorageSection(mainActivityManager = mainActivityManager)
                 }
             }
         }
@@ -637,6 +642,34 @@ private fun JumpToPathSection(
             imageVector = Icons.Rounded.ArrowOutward
         ) {
             mainActivityManager.toggleJumpToPathDialog(true)
+        }
+    }
+}
+
+@Composable
+private fun SMBStorageSection(
+    mainActivityManager: MainActivityManager
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .background(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerLow
+            )
+            .border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clip(RoundedCornerShape(12.dp))
+    ) {
+        SimpleNewTabViewItem(
+            title = stringResource(R.string.smb_storage),
+            imageVector = Icons.Rounded.Lan
+        ) {
+            mainActivityManager.toggleStorageMenuDialog(true)
         }
     }
 }
