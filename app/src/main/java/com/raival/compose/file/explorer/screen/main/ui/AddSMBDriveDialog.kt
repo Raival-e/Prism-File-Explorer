@@ -35,6 +35,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -58,8 +60,9 @@ fun AddSMBDriveDialog(
 
     val context = LocalContext.current
     val mainActivityManager = globalClass.mainActivityManager
-    var host by remember { mutableStateOf("") }
-    var portText by remember { mutableStateOf("") }
+    val mainActivityState by mainActivityManager.state.collectAsState()
+    var host by remember { mutableStateOf(mainActivityState.smbDefaultHost) }
+    var portText by remember { mutableStateOf(mainActivityState.smbDefaultPort) }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var anonymous by remember { mutableStateOf(false) }

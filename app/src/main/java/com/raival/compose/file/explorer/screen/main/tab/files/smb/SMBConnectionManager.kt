@@ -15,7 +15,8 @@ object SMBConnectionManager {
         domain: String?,
         anonymous: Boolean
     ): Session {
-        val key = "$domain|$host|$port|${username ?: "anon"}"
+        val key = listOf(host, port, username ?: "anon", domain ?: "", anonymous, password?.hashCode() ?: 0)
+            .joinToString("|")
         clients[key]?.let { return it }
 
         val client = SMBClient()
@@ -34,7 +35,7 @@ object SMBConnectionManager {
         }
 
         try {
-            val share = session.connectShare("IPC$") // share estándar que siempre existe
+            val share = session.connectShare("IPC$")
             share.close()
         } catch (e: Exception) {
             session.logoff()

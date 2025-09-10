@@ -27,7 +27,8 @@ object SMB1ConnectionManager {
         domain: String?,
         anonymous: Boolean
     ): CIFSContext {
-        val key = "$host|$port|$share|${username ?: "anon"}|$anonymous"
+        val key = listOf(host, port, share, username ?: "anon", domain ?: "", anonymous, password?.hashCode() ?: 0)
+            .joinToString("|")
 
         contexts[key]?.let { return it }
 
@@ -67,7 +68,7 @@ object SMB1ConnectionManager {
             append("smb://")
             append(host)
             append(":")
-            append(port) // <- aquí se añade el puerto
+            append(port)
             append("/")
             append(share)
             if (path.isNotBlank()) {

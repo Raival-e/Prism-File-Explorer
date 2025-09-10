@@ -13,6 +13,12 @@ data class MainActivityState(
     val showAppInfoDialog: Boolean = false,
     val showJumpToPathDialog: Boolean = false,
     val showAddSMBDriveDialog: Boolean = false,
+    val showStorageMenuDialog: Boolean = false,
+    val showLanDiscoveryDialog: Boolean = false,
+    val isLanScanningRunning: Boolean = true,
+    val lanDevices: List<String> = emptyList(),
+    val smbDefaultHost: String = "",
+    val smbDefaultPort: String = "",
     val showSaveEditorFilesDialog: Boolean = false,
     val showStartupTabsDialog: Boolean = false,
     val isSavingFiles: Boolean = false,
@@ -20,5 +26,5 @@ data class MainActivityState(
     val storageDevices: List<StorageDevice> = emptyList(),
     val tabs: List<Tab> = emptyList(),
     val tabLayoutState: LazyListState = LazyListState(),
-    val hasNewUpdate: Boolean = false
+    val hasNewUpdate: Boolean = false,
 )

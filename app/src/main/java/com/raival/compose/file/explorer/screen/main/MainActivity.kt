@@ -51,8 +51,10 @@ import com.raival.compose.file.explorer.screen.main.tab.files.ui.FilesTabContent
 import com.raival.compose.file.explorer.screen.main.tab.home.HomeTab
 import com.raival.compose.file.explorer.screen.main.tab.home.ui.HomeTabContentView
 import com.raival.compose.file.explorer.screen.main.ui.AddSMBDriveDialog
+import com.raival.compose.file.explorer.screen.main.ui.AddStorageMenuDialog
 import com.raival.compose.file.explorer.screen.main.ui.AppInfoDialog
 import com.raival.compose.file.explorer.screen.main.ui.JumpToPathDialog
+import com.raival.compose.file.explorer.screen.main.ui.LanDiscoveryDialog
 import com.raival.compose.file.explorer.screen.main.ui.SaveTextEditorFilesDialog
 import com.raival.compose.file.explorer.screen.main.ui.StartupTabsSettingsScreen
 import com.raival.compose.file.explorer.screen.main.ui.TabLayout
@@ -133,6 +135,41 @@ class MainActivity : BaseActivity() {
                         onDismiss = { mainActivityManager.toggleAddSMBDriveDialog(false) }
                     )
 
+                    LanDiscoveryDialog(
+                        show = mainActivityState.showLanDiscoveryDialog,
+                        isScanning = mainActivityState.isLanScanningRunning,
+                        devices = mainActivityState.lanDevices,
+                        onDismiss = { mainActivityManager.toggleLanDiscoveryDialog(false) },
+                        onDeviceSelected = { selected ->
+                            val matchResult = "\\((\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)\\)$".toRegex().find(selected)
+                            val ip: String
+                            val port: String
+
+                            if (matchResult != null) {
+                                ip = matchResult.groupValues[1]
+                                port = matchResult.groupValues[2]
+                            } else {
+                                ip = selected
+                                port = "445"
+                            }
+
+                            mainActivityManager.toggleLanDiscoveryDialog(false)
+                            mainActivityManager.toggleAddSMBDriveDialog(true, defaultHost = ip, defaultPort = port)
+                        }
+                    )
+
+                    AddStorageMenuDialog(
+                        show = mainActivityState.showStorageMenuDialog,
+                        onDismiss = { mainActivityManager.toggleStorageMenuDialog(false) },
+                        onAddSmb = {
+                            mainActivityManager.toggleStorageMenuDialog(false)
+                            mainActivityManager.toggleAddSMBDriveDialog(true)
+                        },
+                        onAddLan = {
+                            mainActivityManager.toggleStorageMenuDialog(false)
+                            mainActivityManager.toggleLanDiscoveryDialog(true)
+                        }
+                    )
 
                     AppInfoDialog(
                         show = mainActivityState.showAppInfoDialog,
