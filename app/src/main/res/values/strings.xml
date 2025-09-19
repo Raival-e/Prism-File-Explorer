@@ -61,7 +61,7 @@
     <string name="sort_by">Sort by</string>
     <string name="apply_to_this_folder_only">Apply to this folder only</string>
     <string name="name_a_z">Name (A-Z)</string>
-    <string name="date_newer">Date (Newer)</string>
+    <string name="date_newer">Date (newer)</string>
     <string name="size_smaller">Size (smaller)</string>
     <string name="folders_first">Folders first</string>
     <string name="reverse">Reverse</string>
@@ -160,7 +160,7 @@
     <string name="categories">Categories</string>
     <string name="images">Images</string>
     <string name="videos">Videos</string>
-    <string name="audios">Audios</string>
+    <string name="audios">Audio</string>
     <string name="documents">Documents</string>
     <string name="archives">Archives</string>
     <string name="storage">Storage</string>
@@ -340,7 +340,7 @@
     <string name="no_permissions_requested">No permissions requested</string>
     <string name="properties">Properties</string>
     <string name="debug">Debug</string>
-    <string name="advance">Advance</string>
+    <string name="advance">Advanced</string>
     <string name="audio">Audio</string>
     <string name="game">Game</string>
     <string name="image">Image</string>
@@ -452,5 +452,5 @@
     <string name="remember_last_session_desc">if enabled, startup tabs will be ignored</string>
     <string name="close_tab_on_back_nav">Back navigation to close tabs</string>
     <string name="remember_last_session">Remember last session</string>
-    <string name="confirm_before_exit">Confirm before exit the app</string>
+    <string name="confirm_before_exit">Confirm before exiting the app</string>
 </resources>
