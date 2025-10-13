@@ -3,6 +3,7 @@ package com.raival.compose.file.explorer.screen.main.tab.files.task
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.App.Companion.logger
 import com.raival.compose.file.explorer.R
+import com.raival.compose.file.explorer.common.MediaStoreUtils
 import com.raival.compose.file.explorer.common.emptyString
 import com.raival.compose.file.explorer.common.isNot
 import com.raival.compose.file.explorer.common.listFilesAndEmptyDirs
@@ -27,9 +28,14 @@ class CopyTask(
     val sourceFiles: List<ContentHolder>,
     val deleteSourceFiles: Boolean
 ) : Task() {
+    private val context = globalClass.applicationContext
+
     private var parameters: CopyTaskParameters? = null
     private val pendingFiles: ArrayList<TaskContentItem> = arrayListOf()
     private var canPerformAtomicFileMove = true
+
+    private val modifiedFiles = mutableListOf<File>()
+    private val deletedFiles = mutableListOf<File>()
 
     override val metadata = createTaskMetadata()
     override val progressMonitor = TaskProgressMonitor(
@@ -220,6 +226,8 @@ class CopyTask(
                     append("\n")
                 }
             }
+
+            notifyMediaStoreChanges()
         }
     }
 
@@ -313,7 +321,9 @@ class CopyTask(
                 progress = (index + 1f) / successfulItems.size
             }
 
-            (item.content as LocalFileHolder).file.deleteRecursively()
+            val file = (item.content as LocalFileHolder).file
+            trackFileDeletion(file)
+            file.deleteRecursively()
         }
 
         // Clean up empty directories
@@ -464,6 +474,7 @@ class CopyTask(
                 } else {
                     source.copyTo(destination, overwrite)
                 }
+                trackFileModification(destination)
             } else {
                 destination.mkdirs() || destination.exists()
             }
@@ -649,6 +660,7 @@ class CopyTask(
                             input.copyTo(output)
                         }
                     }
+                trackFileModification(destinationFile)
             } else {
                 destinationFile.mkdirs()
             }
@@ -815,5 +827,18 @@ class CopyTask(
 
             else -> emptyList()
         }
+    }
+
+    private fun trackFileModification(file: File) {
+        if (!modifiedFiles.contains(file)) modifiedFiles.add(file)
+    }
+
+    private fun trackFileDeletion(file: File) {
+        if (!deletedFiles.contains(file)) deletedFiles.add(file)
+    }
+
+    private fun notifyMediaStoreChanges() {
+        if (modifiedFiles.isNotEmpty()) MediaStoreUtils.notifyFileChanged(context, modifiedFiles)
+        if (deletedFiles.isNotEmpty()) MediaStoreUtils.notifyFileChanged(context, deletedFiles)
     }
 }
