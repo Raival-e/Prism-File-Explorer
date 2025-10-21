@@ -205,12 +205,7 @@
     <string name="number_increment">數字遞增</string>
     <string name="zero_number_increment">補零數字遞增</string>
     <string name="find_n_replace">尋找與取代</string>
-    <string name="batch_rename_info"><![CDATA[{p} -> 不含副檔名的檔名（例如「document.txt」的「document」）
-{s} -> 副檔名（例如「document.txt」的「txt」）
-{e} -> 含點的副檔名（例如「document.txt」的「.txt」）
-{t} -> 檔案的最後修改時間（格式為「yyyyMMdd_HHmmss」）
-{n} -> 數字遞增（例如，{0} -> 0, 1, 2…；{1} -> 1, 2, 3…）
-{zn} -> 補零數字遞增（例如，{z0} -> 0, 1…；{zz0} -> 00, 01…；{zzz1} -> 001, 002…）]]></string>
+    <string name="batch_rename_info"><![CDATA[{p} -> 不含副檔名的檔名（例如「document.txt」的「document」）\n\n{s} -> 副檔名（例如「document.txt」的「txt」）\n\n{e} -> 含點的副檔名（例如「document.txt」的「.txt」）\n\n{t} -> 檔案的最後修改時間（格式為「yyyyMMdd_HHmmss」）\n\n{n} -> 數字遞增（例如，{0} -> 0, 1, 2…；{1} -> 1, 2, 3…）\n\n{zn} -> 補零數字遞增（例如，{z0} -> 0, 1…；{zz0} -> 00, 01…；{zzz1} -> 001, 002…）]]></string>
     <string name="syntax">語法</string>
     <string name="extension_with_dot">含點的副檔名</string>
     <string name="unable_to_move_to_recycle_bin">建立回收桶資料夾時發生錯誤</string>
