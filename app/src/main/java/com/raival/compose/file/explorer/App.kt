@@ -1,6 +1,10 @@
 package com.raival.compose.file.explorer
 
 import android.app.Application
+import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import android.content.Context
 import android.os.Environment
 import android.os.Process
@@ -48,6 +52,10 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.exitProcess
 
 class App : Application(), coil3.SingletonImageLoader.Factory {
+
+    // Share mode
+    var isShareMode: Boolean by mutableStateOf(false)
+    var shareUris: List<Uri> by mutableStateOf(emptyList())
     companion object {
         lateinit var appContext: Context
 

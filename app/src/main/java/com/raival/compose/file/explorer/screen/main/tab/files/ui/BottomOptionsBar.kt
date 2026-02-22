@@ -5,7 +5,20 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import android.app.Activity
+import android.provider.OpenableColumns
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.rounded.SaveAlt
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,6 +66,92 @@ import com.raival.compose.file.explorer.screen.main.tab.files.task.CopyTask
 @Composable
 fun BottomOptionsBar(tab: FilesTab) {
     val state = tab.bottomOptionsBarState.collectAsState().value
+
+    // ── Share mode: Save here banner ──────────────────────────────────────────
+    if (globalClass.isShareMode && globalClass.shareUris.isNotEmpty()) {
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+        var isSaving by remember { mutableStateOf(false) }
+        val fileLabel = if (globalClass.shareUris.size == 1)
+            getSharedFileName(context, globalClass.shareUris[0]) ?: context.getString(R.string.unknown_file)
+        else context.getString(R.string.shared_files_count, globalClass.shareUris.size)
+
+        HorizontalDivider()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = fileLabel,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                androidx.compose.material3.OutlinedButton(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(6.dp),
+                    onClick = {
+                        globalClass.isShareMode = false
+                        globalClass.shareUris = emptyList()
+                    }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+                androidx.compose.material3.Button(
+                    modifier = Modifier.weight(1f),
+                enabled = !isSaving && tab.activeFolder.canWrite,
+                shape = RoundedCornerShape(6.dp),
+                onClick = {
+                    coroutineScope.launch(Dispatchers.IO) {
+                        isSaving = true
+                        val ok = saveSharedFilesToFolder(context, globalClass.shareUris, tab)
+                        isSaving = false
+                        if (ok) {
+                            globalClass.isShareMode = false
+                            globalClass.shareUris = emptyList()
+                            globalClass.showMsg(R.string.file_saved_successfully)
+                            tab.reloadFiles()
+                        } else {
+                            globalClass.showMsg(R.string.failed_to_save_file)
+                        }
+                    }
+                }
+            ) {
+                if (isSaving) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                    Space(size = 8.dp)
+                    Text(text = stringResource(R.string.saving_file))
+                } else {
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        imageVector = Icons.Rounded.SaveAlt,
+                        contentDescription = null
+                    )
+                    Space(size = 8.dp)
+                    Text(text = stringResource(R.string.save_here))
+                }
+            }
+            } // end Row
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     AnimatedVisibility(
         visible = state.showQuickOptions && tab.selectedFiles.isNotEmpty(),
@@ -252,4 +351,50 @@ fun RowScope.BottomOptionsBarButton(
 
         view()
     }
+}
+
+private fun getSharedFileName(context: android.content.Context, uri: android.net.Uri): String? {
+    context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (idx >= 0) return cursor.getString(idx)
+        }
+    }
+    return uri.lastPathSegment
+}
+
+private fun saveSharedFilesToFolder(
+    context: android.content.Context,
+    uris: List<android.net.Uri>,
+    tab: FilesTab
+): Boolean {
+    return try {
+        val localFolder = tab.activeFolder
+            as? com.raival.compose.file.explorer.screen.main.tab.files.holder.LocalFileHolder
+            ?: return false
+        val destDir = localFolder.file
+        if (!destDir.exists() || !destDir.isDirectory) return false
+        uris.forEach { uri ->
+            val originalName = getSharedFileName(context, uri) ?: "shared_${System.currentTimeMillis()}"
+            val destFile = getUniqueFile(destDir, originalName)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                destFile.outputStream().use { input.copyTo(it) }
+            }
+        }
+        true
+    } catch (e: Exception) { false }
+}
+
+private fun getUniqueFile(dir: java.io.File, fileName: String): java.io.File {
+    val dot = fileName.lastIndexOf('.')
+    val name = if (dot != -1) fileName.substring(0, dot) else fileName
+    val ext = if (dot != -1) fileName.substring(dot) else ""
+
+    var file = java.io.File(dir, fileName)
+    var counter = 1
+    while (file.exists()) {
+        file = java.io.File(dir, "${name} Copy($counter)${ext}")
+        counter++
+    }
+    return file
 }
