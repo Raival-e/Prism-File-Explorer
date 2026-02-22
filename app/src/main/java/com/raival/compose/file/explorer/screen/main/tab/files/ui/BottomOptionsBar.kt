@@ -375,11 +375,26 @@ private fun saveSharedFilesToFolder(
         val destDir = localFolder.file
         if (!destDir.exists() || !destDir.isDirectory) return false
         uris.forEach { uri ->
-            val name = getSharedFileName(context, uri) ?: "shared_${System.currentTimeMillis()}"
+            val originalName = getSharedFileName(context, uri) ?: "shared_${System.currentTimeMillis()}"
+            val destFile = getUniqueFile(destDir, originalName)
             context.contentResolver.openInputStream(uri)?.use { input ->
-                java.io.File(destDir, name).outputStream().use { input.copyTo(it) }
+                destFile.outputStream().use { input.copyTo(it) }
             }
         }
         true
     } catch (e: Exception) { false }
+}
+
+private fun getUniqueFile(dir: java.io.File, fileName: String): java.io.File {
+    val dot = fileName.lastIndexOf('.')
+    val name = if (dot != -1) fileName.substring(0, dot) else fileName
+    val ext = if (dot != -1) fileName.substring(dot) else ""
+
+    var file = java.io.File(dir, fileName)
+    var counter = 1
+    while (file.exists()) {
+        file = java.io.File(dir, "${name} Copy($counter)${ext}")
+        counter++
+    }
+    return file
 }
