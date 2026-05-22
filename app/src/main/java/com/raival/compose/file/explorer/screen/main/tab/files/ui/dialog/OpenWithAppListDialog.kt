@@ -3,12 +3,14 @@ package com.raival.compose.file.explorer.screen.main.tab.files.ui.dialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -22,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -65,6 +68,10 @@ fun OpenWithAppListDialog(
 
         val loading = remember {
             mutableStateOf(true)
+        }
+
+        val rememberChoice = remember {
+            mutableStateOf(false)
         }
 
         val scope = rememberCoroutineScope()
@@ -129,6 +136,23 @@ fun OpenWithAppListDialog(
                     )
                 }
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            onClick = { rememberChoice.value = !rememberChoice.value }
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = rememberChoice.value,
+                        onCheckedChange = { rememberChoice.value = it }
+                    )
+                    Space(8.dp)
+                    Text(text = stringResource(id = R.string.remember_this_choice))
+                }
+
                 LazyColumn {
                     itemsIndexed(appsList, key = { index, item -> item.id }) { index, item ->
                         var showOptionsMenu by remember(item.id) {
@@ -141,6 +165,19 @@ fun OpenWithAppListDialog(
                                 .animateItem()
                                 .combinedClickable(
                                     onClick = {
+                                        if (rememberChoice.value) {
+                                            val defOpeningMethods: DefaultOpeningMethods =
+                                                fromJson(globalClass.preferencesManager.defaultOpeningMethods)
+                                                    ?: DefaultOpeningMethods()
+                                            globalClass.preferencesManager.defaultOpeningMethods =
+                                                DefaultOpeningMethods(
+                                                    (defOpeningMethods.openingMethods.filter { it.extension != contentHolder.extension } + OpeningMethod(
+                                                        extension = contentHolder.extension,
+                                                        packageName = item.packageName,
+                                                        className = item.name
+                                                    ))
+                                                ).toJson()
+                                        }
                                         contentHolder.openFileWithPackage(
                                             context,
                                             item.packageName,
