@@ -1,3 +1,6 @@
+> [!IMPORTANT]  
+> **This repository is no longer actively maintained.** I am unable to provide support, fix bugs, or merge pull requests. If you’d like to take over maintenance, feel free to fork the project and I’m happy to add a link to your fork in this README.
+
 <div align="center">
 
 <img src="assets/app_icon.png" width="120" alt="Prism File Explorer Logo"/>
