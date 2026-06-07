@@ -453,4 +453,13 @@
     <string name="close_tab_on_back_nav">Back navigation to close tabs</string>
     <string name="remember_last_session">Remember last session</string>
     <string name="confirm_before_exit">Confirm before exiting the app</string>
+    <string name="save_shared_file">Save File</string>
+    <string name="save_here">Save here</string>
+    <string name="saving_file">Saving...</string>
+    <string name="file_saved_successfully">File saved successfully</string>
+    <string name="failed_to_save_file">Failed to save file</string>
+    <string name="destination_folder">Destination folder</string>
+    <string name="no_files_received">No files received</string>
+    <string name="unknown_file">Unknown file</string>
+    <string name="shared_files_count">%d shared files</string>
 </resources>

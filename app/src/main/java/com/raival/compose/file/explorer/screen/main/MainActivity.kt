@@ -36,6 +36,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import android.content.Intent
+import android.net.Uri
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.R
 import com.raival.compose.file.explorer.base.BaseActivity
@@ -115,6 +117,9 @@ class MainActivity : BaseActivity() {
                         mainActivityManager.checkForUpdate()
                         if (hasIntent()) {
                             handleIntent()
+                            if (mainActivityState.tabs.isEmpty()) {
+                                mainActivityManager.loadStartupTabs()
+                            }
                         } else {
                             if (mainActivityState.tabs.isEmpty()) {
                                 mainActivityManager.loadStartupTabs()
@@ -343,17 +348,43 @@ class MainActivity : BaseActivity() {
     }
 
     private fun hasIntent(): Boolean {
-        return intent isNot null && intent!!.hasExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)
+        if (intent == null) return false
+        val action = intent!!.action
+        return intent!!.hasExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)
+            || action == Intent.ACTION_SEND
+            || action == Intent.ACTION_SEND_MULTIPLE
     }
 
     private fun handleIntent() {
         intent?.let {
-            if (it.hasExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)) {
-                globalClass.mainActivityManager.jumpToFile(
-                    file = LocalFileHolder(File(it.getStringExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)!!)),
-                    context = this
-                )
-                intent = null
+            when (it.action) {
+                Intent.ACTION_SEND -> {
+                    @Suppress("DEPRECATION")
+                    val uri = it.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                    if (uri != null) {
+                        globalClass.shareUris = listOf(uri)
+                        globalClass.isShareMode = true
+                    }
+                    intent = null
+                }
+                Intent.ACTION_SEND_MULTIPLE -> {
+                    @Suppress("DEPRECATION")
+                    val uris = it.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                    if (!uris.isNullOrEmpty()) {
+                        globalClass.shareUris = uris
+                        globalClass.isShareMode = true
+                    }
+                    intent = null
+                }
+                else -> {
+                    if (it.hasExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)) {
+                        globalClass.mainActivityManager.jumpToFile(
+                            file = LocalFileHolder(File(it.getStringExtra(HOME_SCREEN_SHORTCUT_EXTRA_KEY)!!)),
+                            context = this
+                        )
+                        intent = null
+                    }
+                }
             }
         }
     }
