@@ -3,6 +3,7 @@ package com.raival.compose.file.explorer.screen.main.tab.files.task
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.App.Companion.logger
 import com.raival.compose.file.explorer.R
+import com.raival.compose.file.explorer.common.MediaStoreUtils
 import com.raival.compose.file.explorer.common.emptyString
 import com.raival.compose.file.explorer.common.toFormattedDate
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.ContentHolder
@@ -19,8 +20,12 @@ import java.util.zip.ZipOutputStream
 class DeleteTask(
     val sourceContent: List<ContentHolder>
 ) : Task() {
+    private val context = globalClass.applicationContext
+
     private var parameters: DeleteTaskParameters? = null
     private var pendingContent = arrayListOf<DeleteContentItem>()
+
+    private val deletedFiles = mutableListOf<File>()
 
     override val metadata = System.currentTimeMillis().toFormattedDate().let { time ->
         TaskMetadata(
@@ -174,6 +179,7 @@ class DeleteTask(
 
                 try {
                     val localFile = itemToDelete.source as LocalFileHolder
+                    trackFileDeletion(localFile.file)
                     if (localFile.file.deleteRecursively()) {
                         itemToDelete.status = TaskContentStatus.SUCCESS
                     } else {
@@ -191,6 +197,8 @@ class DeleteTask(
                 }
             }
         }
+
+        notifyMediaStoreChanges()
     }
 
     private suspend fun handleZipFileDeletion() {
@@ -360,4 +368,12 @@ class DeleteTask(
         val source: ContentHolder,
         var status: TaskContentStatus
     )
+
+    private fun trackFileDeletion(file: File) {
+        if (!deletedFiles.contains(file)) deletedFiles.add(file)
+    }
+
+    private fun notifyMediaStoreChanges() {
+        if (deletedFiles.isNotEmpty()) MediaStoreUtils.notifyFileChanged(context, deletedFiles)
+    }
 }

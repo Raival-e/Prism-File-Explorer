@@ -3,6 +3,7 @@ package com.raival.compose.file.explorer.screen.main.tab.files.task
 import com.raival.compose.file.explorer.App.Companion.globalClass
 import com.raival.compose.file.explorer.App.Companion.logger
 import com.raival.compose.file.explorer.R
+import com.raival.compose.file.explorer.common.MediaStoreUtils
 import com.raival.compose.file.explorer.common.emptyString
 import com.raival.compose.file.explorer.common.toFormattedDate
 import com.raival.compose.file.explorer.screen.main.tab.files.holder.ContentHolder
@@ -20,8 +21,12 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
 class RenameTask(val sourceContent: List<ContentHolder>) : Task() {
+    private val context = globalClass.applicationContext
+
     private var parameters: RenameTaskParameters? = null
     private var pendingContent = arrayListOf<RenameContentItem>()
+
+    private val modifiedFiles = mutableListOf<File>()
 
     override val metadata = System.currentTimeMillis().toFormattedDate().let { time ->
         TaskMetadata(
@@ -171,6 +176,8 @@ class RenameTask(val sourceContent: List<ContentHolder>) : Task() {
         }
 
         if (progressMonitor.status == TaskStatus.RUNNING) {
+            if (sampleContent is LocalFileHolder) notifyMediaStoreChanges()
+
             progressMonitor.apply {
                 status = TaskStatus.SUCCESS
                 progress = 1.0f
@@ -201,6 +208,7 @@ class RenameTask(val sourceContent: List<ContentHolder>) : Task() {
                     val newFile = File(itemToRename.newPath)
 
                     if (localFile.file.renameTo(newFile)) {
+                        trackFileModification(localFile.file, newFile)
                         itemToRename.status = TaskContentStatus.SUCCESS
                     } else {
                         throw Exception(globalClass.getString(R.string.failed_to_rename_file))
@@ -217,6 +225,8 @@ class RenameTask(val sourceContent: List<ContentHolder>) : Task() {
                 }
             }
         }
+
+        notifyMediaStoreChanges()
     }
 
     private suspend fun handleZipFileRenaming() {
@@ -502,4 +512,13 @@ class RenameTask(val sourceContent: List<ContentHolder>) : Task() {
         val newPath: String,
         var status: TaskContentStatus
     )
+
+    private fun trackFileModification(oldFile: File, newFile: File) {
+        if (!modifiedFiles.contains(oldFile)) modifiedFiles.add(oldFile)
+        if (!modifiedFiles.contains(newFile)) modifiedFiles.add(newFile)
+    }
+
+    private fun notifyMediaStoreChanges() {
+        if (modifiedFiles.isNotEmpty()) MediaStoreUtils.notifyFileChanged(context, modifiedFiles)
+    }
 }
