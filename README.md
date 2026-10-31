@@ -1,5 +1,7 @@
 > [!IMPORTANT]  
-> **This repository is no longer actively maintained.** I am unable to provide support, fix bugs, or merge pull requests. If you’d like to take over maintenance, feel free to fork the project and I’m happy to add a link to your fork in this README.
+> **This repository is no longer actively maintained.**  
+> An actively maintained fork is available at **[techflyers/Prism-File-Explorer](https://github.com/techflyers/Prism-File-Explorer)**.  
+> Please direct new issues, pull requests, and feature requests to the fork. If you are maintaining another active fork and would like it listed here, feel free to reach out.
 
 <div align="center">
 
@@ -142,6 +144,9 @@
 ---
 
 ## 🤝 Contributing
+
+> [!NOTE]  
+> Since this repository is inactive, please submit contributions and pull requests to the active fork: **[techflyers/Prism-File-Explorer](https://github.com/techflyers/Prism-File-Explorer)**.
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
